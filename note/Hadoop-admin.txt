@@ -1,8 +1,9 @@
 Hadoop的管理：
+1、
 	a)作为一名合格的系统运维人员，首先要全面系统的掌握系统的文件组织目录，对于
 		Hadoop系统来说，就是要掌握HDFS中的namenode、datanode、secondary NameNode是如何在磁盘上组织、存储持久化数据的。
 	b)NameNode的文件结构：
-		${dfs.name.dir}/current/Version
+		${dfs.name.dir}/current/VERSION
 								/edits
 								/fsimag
 								/fstime
@@ -16,4 +17,85 @@ Hadoop的管理：
 				指出此存储目录包含一个NameNode的数据结构，在DataNode中它的属性值为DATA_NODE
 			layoutVersion:
 				是一个负的整数，定义了HDFS持久数据结构的版本。该版本号与Hadoop的发行版本号无关。每次HDFS的布局发生改变，该版本号都会递减，这种情况下，HDFS就需要更新升级了，因为一个新的NameNode或DataNode如果还处在旧版本上，那么系统就无法正常运行，各节点的版本号需要一致。
-	c)在NameNode的存储目录中包含edits、fsimage、fstime三个文件。它们都是	
+	c)在NameNode的存储目录中包含edits、fsimage、fstime三个文件。它们都是二进制的文	件，可以通过HadoopWritable对象进行序列化
+		fsimage文件是文件系统元数据的持久性检查点。
+		secondary NameNode的任务之一就是为原NameNode内存中的文件系统元数据
+		产生检查点，辅助NameNode处理fsimage和编辑日志的节点，它会从NameNode中拷贝fsimage和编辑日志到临时目录，并定期合并成一个新的fsimage。随后它会蒋欣的fsimage上传到NameNode，这样NameNode便可以更新fsimage并删除原来的编辑日志了。
+	d)DataNode的文件结构：
+		DataNode不需要进行格式化，它们会在启动时自己创建存储目录，其中关键的文件和目录如下：
+		${dfs.data.dir}/current/VERSION
+								/blk_<id_1>
+								/blk_<id_1>.meta
+								/blk_<id_2>
+								/blk_<id_2>.meta
+								/......
+								/subdir0/
+								/subdir1/
+								/subdir2/
+								/......
+								/subdirN/
+		DataNode中current目录下的其他文件都有blk_refix前缀，它有两种类型：
+		HDFS中的文件块本身，存储的是原始文件内容
+		块的元数据信息（使用.meta后缀标识）。
+		一个块文件由存储的原始文件字节组成，元数据文件由一个包含版本和类型信息的头文件与一系列块的区域校验和组成。
+		当目录中存储的块数量增加到一定规模时，DataNode会创建一个新的目录，用于保存新的块及元数据。这样就会形成一个更宽的文件树结构，避免了系统由于存储大量数据块而导致目录很深，影响检索性能。通过这样的措施，数据节点可以确保每个目录中的文件块数是可控的，这也避免了一个目录中存在过多的文件。
+2、Hadoop的状态监视和管理工具：
+	 监控的目的是让我们知道系统何时出现问题，并找到问题出在哪里，从而做出相应的处理。
+	 管理守护进程对监控NameNode、DataNode和JobTracker是非常重要的。
+	 a、审计日志：
+	 	HDFS通过审计日志可以实现记录文件系统中所有文件访问请求的功能，其审计日志功能通过log4j实现，但是在默认配置下，这个功能是关闭的，log4j的记录等级在log4j.properties中，默认是warn，设置为info就可以打开审计日志功能。这样每个HDFS事件后，系统就会在NameNode的log文件中写入一行记录。
+	 b、监控日志：
+	 	所有Hadoop守护进程都会产生一个日志文件，这对管理员来说非常重要。
+	 	a)设置日志级别：
+	 		日志一般包含以下几个级别：OFF、FATAL、ERROR、WARN、INFO、DEBUG、ALL或者用户自定义的级别。
+	 	b)获取堆栈信息
+	 		系统为管理员提供所有守护进程JVM中运行的线程信息，可以访问Jobtracker的
+	 		50030端口
+	 c、Ganglia：
+	 	Ganglia的核心包含两个daemon分别是服务端和客户端以及一个web前端。
+	 	它主要是用来监控系统性能。通过web前端页面，我们可以获得曲线描述的各个节点工作状态，通过Ganglia可以帮助我们合理调整、分配系统资源，为提高系统整体性能起到了重要作用。
+3、Hadoop管理命令：
+	a、dfsadmin：
+		dfsadmin是一个多任务的工具，我们可以使用它来获取HDFS的状态信息，以及在HDFS上执行的管理操作。管理员可以在终端中通过Hadoop dfsadmin命令调用它，
+		这需要使用超级用户权限。
+	b、文件系统验证(fsck)：
+		Hadoop提供了fsck工具来验证HDFS中的文件是否正常可用。
+		这个工具可以检测文件快是否在DataNode中丢失，是否低于或高于文件副本要求。
+		fsck会递归遍历文件系统的namespace，从文件系统的根目录开始检测它所找到的全部文件，并在它验证过的文件上标记一个点。
+		要检查一个文件，fsck首先会检索元数据中文件的块，然后查看是否有问题或是否一致。
+		需要注意的是，fsck验证只和NameNode通信而不和DataNode通信。
+	c、DataNode块扫描任务：
+		每个DataNode都会执行一个块扫描任务，它会周期性地验证它所存储的块。
+		这就允许有问题的块在客户端读取时被删除或修整。DataBlockScanner可维护一个块列表，它会一个一个地扫描这些块，并进行校验和验证。
+		进行块验证的周期可以通过dfs.datanode.scan.period.hours属性值进行设定，
+		默认为504小时，即三周。出现问题的块将会被报告给NameNode进行处理。
+	d、均衡器：
+		HDFS不间断地运行，隔一段时间可能就会出现文件在集群中分布不均匀的情况，一个不平衡的机器会影响系统资源的充分利用，所有我们要想办法避免它。
+		balance程序是Hadoop的守护进程，它会通过将文件块从高负载的DataNode转移到低负载的DataNode上，即进行文件块的重新分布，达到集群的平衡。同时还要考虑HDFS的块副本分配策略。
+		balance的目的是使集群达到相对平衡，指每个DataNode的磁盘使用率和整个集群的资源使用率的差值小于给定的阈值。
+4、Hadoop集群的维护
+	a、安全模式：
+		当NameNode启动时，第一件要做的事情就是讲映像文件fsimage加载到内存，并应用edits文件记录编辑日志。一旦成功重构和之前文件系统一致且基于内存的文件系统元数据，NameNode就会创建一个新的fsimage文件和一个空的编辑日志文件。只有全部完成了这些工作，NameNode才会监听RPC和HTTP请求。
+		如果NameNode运行于安全模式，那么文件系统只能对客户端提供只读模式的视图了。
+5、Hadoop的备份
+	a、元数据的备份：
+		如果NameNode中存储的持久化元数据信息丢失或遭到破坏，那么整个文件系统就不可用了。因此元数据的备份至关重要，需要备份不同时期的元数据信息以避免突然的宕机带来的破坏。
+		备份的一个最直接的办法就是编写一个脚本程序，然后周期地将Secondary NameNode
+		中previous.checkpoint子目录下的文件归档到另外的机器上。该脚本需要额外验证
+		所拷贝备份文件的完整性。这个验证可以通过在NameNode的守护进程中运行一个验证程序来实现，验证其是否成功地从内存中读取了fsimage及edits文件。
+	b、数据的备份：
+		HDFS的设计目标之一就是能够可靠地在分布式集群中储存数据，由于HDFS允许数据丢失的发生，所以数据的备份就显得至关重要了。
+		在备份过程中，最优先备份的应该是那些不能再生的数据和对商业应用最关键的数据。
+		不要认为HDFS的副本机制可以代替数据的备份。HDFS中的bug也会导致副本丢失，同样硬件也会出现故障。还要考虑到系统有时会出现软件bug和人为操作失误的情况。
+		通常Hadoop会设置用户目录的策略，比如，每一个用户都有一个空间配额，每天晚上可以进行备份工作。
+		distcp工具是在不同HDFS之间或者不同Hadoop文件系统之间转储、数据备份的好工具，因为distcp可以并行进行数据复制。
+6、Hadoop的节点管理
+	作为Hadoop集群的管理员，可能随时要增加机器节点、移除机器节点的任务。
+	1、添加新的节点：
+		如果允许任何机器都可以通过配置文件链接到NameNode上并充当DataNode是存在安全隐患的，因为这样的机器可能获得未经授权文件的访问权限。它还可以存储数据，而又不再集群的控制之下，并且任何时候都有可能体质运行，从而造成数据丢失。所以我们需要配置一个授权节点列表，在集群中也要对DataNode进行明确的管理。
+		在dfs.hosts文件中指定可以链接到NameNode的DataNode列表。
+		dfshosts文件存储在NameNode的本地文件系统之上，包含每个DataNode的网络地址
+		，一行表示一个DataNode。如果要为一个DataNode设置多个网络地址，则把他们写到一行中，中间用空格分开。
+		类似的，TaskTracker是在mapred.hosts中设置的。
+		一般来说，DataNode和TaskTracker列表中都存在一个共享文件，名为include file,它被dfs.hosts及mapred.hosts两者引用，因为在大多数情况下，集群中
+		的机器会同时运行DataNode及TaskTracker守护进程。
