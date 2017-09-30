@@ -1,0 +1,84 @@
+HBase：
+1、简介：
+	HBase是Apache Hadoop的数据库，能对大型数据提供随机、实时的读写访问。
+	HBase运行依赖于其他文件系统，它模仿并提供了基于Google文件系统中大表数据库的所有功能
+	HBase的目标是存储并处理大型的数据，更具体来说是仅需要使用普通的硬件配置，就能够处理由成千上万的行和列所组成的大型数据。
+	HBase可以直接使用本地文件系统，也可以使用Hadoop的HDFS文件存储系统。
+	为了提高数据的可靠性和系统的健壮性，并且发挥HBase处理大数据的能力，还是使用HDFS作为文件存储系统更为稳妥。
+
+	
+2、HBase的基本操作：
+	
+	 a、配置HBase：
+	 	
+	 b、监控日志：
+	 	
+	 c、
+3、 HBase的体系结构：
+	HBase的服务器体系结构遵从简单的主从服务器架构，它由HRegion服务器群和HBase Master
+	服务器构成
+	a、HBase Master服务器负责管理所有的HRegion服务器，而HBase中所有的服务器都是通
+		过zookeeper来进行协调，并处理HBase服务器运行期间可能遇到的错误的。
+
+	b、HBase Master服务器本身并不存储HBase中的任何数据，HBase逻辑上的表可能会被划
+	   分成多个HRegion，然后存储到HRegion Server集群中
+	c、HBase Master Server中存储的是从数据到HRegion Server的映射。
+4、 HRegion
+	a、 HRegion:
+		当表的大小超过设置值得时候，HBase会自动将表划分为不同的区域，每个区域包含所有行的一个子集。从物理上来说，一张表被拆分成了多个块，每一个块就是一个HRegion，我们用表名+开始/结束主键来区分每个HRegion，一个HRegion会保存一个表里面某段连续的
+		数据，从开始主键到结束主键，一张完整的表格是保存在多个HRegion上面的。
+	b、	HRegion服务器：
+		所有的数据库数据一般是保存在Hadoop分部署文件系统上面的额，用户通过一系列的HRegion服务器获取这些数据，一台机器上面一般只允许一个HRegion服务器，且每一个区段的
+		HRegion也只会被一个HRegion服务器维护。
+		当一个HRegion变得太多巨大，超过了设定的阈值时，HRegion服务器会调用
+		HRegion.closeAndSplit()将此HRegion拆分成两个，并且报告给主服务器让它决定由
+		哪台HRegion服务器来存放信的HRegion。
+	c、	HBase Master服务器：
+		每台HRegion服务器都会和HMaster服务器通信，HMaster的主要任务就是告诉每台HRegion服务器它要维护那些HRegion。
+	d、ROOT表和META表：
+		一个HRegion的表达符最后是：
+		表名+开始主键+唯一ID(tablename+startkey+regionID)
+		我们可以用这个标识符来区分不同的HRegion，这些数据就是元数据，而且元数据本身也是存储在HRegion里面的。所以我们称这个表为元数据表，里面保存的就是HRegion标识符和实际HRegion服务器的映射关系。
+		元数据表也会增长，并且可能被分割成为几个HRegion，为了定位这些HRegion，我们采用了一个根数据表（ROOT table），它保存了所有元数据表的位置，而根数据表是不能被分
+		割的，永远只存在一个HRegion。
+5、 HBase的数据模型：
+	HBase是一个类似Bigtable的分布式数据库，它是一个稀疏的长期存储的、多维度的、排序的映射表。这张表的索引是行关键字、列关键字和时间戳。
+	HBase中的数据都是字符串，没有类型
+	a、 ：
+
+	b、 ：
+		
+6、Hbase的优化：
+	Hive是针对不同的查询进行优化的，优化可以通过配置来进行控制。
+	a、列裁剪（Column Pruning）
+		读数据时，只读取查询中需要用到的列，而忽略其他列。
+		要实现列裁剪，需要设置参数hive.optimize.cp=true。
+	b、分区裁剪（Partition Pruning）
+		在查询过程中减少不必要的分区。
+		要实现分区裁剪，需要设置参数hive.optimize.cp=true。
+	c、Join操作
+		当使用写有join操作的查询语句时，有一条原则：应该讲条目少的表/子查询放在join
+		操作符的左边。原因是在join操作的reduce阶段，位于join操作符左边的标的内容会被加载到内存中，将条目少的表放在左边，这样可以有效减少发生内存溢出的几率。
+	d、Map Join操作
+		map Join操作无需reduce操作就可以在map阶段全部完成，前提是在map过程中可以访问
+		到全部需要的数据。
+	e、Group By操作
+		进行Group By操作时需要注意以下两点：
+		a)map端部分聚合，这时需要修改的参数为：hive.mao.aggr=true，用于设定是否在
+		map端进行聚合，默认为true。
+			hive.groupby.mapaggr.checkinterval=100000,用于设定在map端进行聚合操
+			作的条目数。
+		b)有数据倾斜（数据分布不均匀）时进行负载均衡。
+		此处需要设定hive.groupby.skewindata,当选项设定为true是，生成的查询计划会有
+		两个MapReduce任务。第一个MapReduce中，map的输出结果集合会随机分不到reduce中，每个reduce都做部分聚合操作，并输出结果。
+		第二个MapReduce任务再根据预处理的数据结果按照Group By Key 分不到reduce中，
+		最后完成最终的聚合操作。
+	f、合并小文件
+		文件数据过多，会给HDFS带来很大的压力，并且会影响处理的效率，因此我们可以通过合并
+		map和reduce的结果文件来消除这样的额影响。
+		需要进行的设定有以下三个：
+		hive.merge.mapfiles = true,设定是否合并map输出文件，默认为true
+		hive.merge.mapredfiles = false,设定是否合并reduce输出文件，默认为false
+		hive.merge.size.per.task = **,设定合并文件的大小，默认值为256000000。
+
+	
