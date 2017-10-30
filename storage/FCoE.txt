@@ -1,0 +1,48 @@
+FCoE：
+1、简介：
+	Fibre Channel over Ethernet是一个把 Fibre channel 中的帧封装到一个增强的以太网中的传输协议标准，应用于组件存储网络。
+	
+2、与FC的区别和联系：
+	运行环境不同
+	运行通道不同
+	协议栈不同
+	增加了FIP初始化协议
+	FCoE需要其他协议支持
+	
+3、 HBase的体系结构：
+	HBase的服务器体系结构遵从简单的主从服务器架构，它由HRegion服务器群和HBase Master
+	服务器构成
+	a、HBase Master服务器负责管理所有的HRegion服务器，而HBase中所有的服务器都是通
+		过zookeeper来进行协调，并处理HBase服务器运行期间可能遇到的错误的。
+
+	b、HBase Master服务器本身并不存储HBase中的任何数据，HBase逻辑上的表可能会被划
+	   分成多个HRegion，然后存储到HRegion Server集群中
+	c、HBase Master Server中存储的是从数据到HRegion Server的映射。
+4、 HRegion
+	a、 HRegion:
+		当表的大小超过设置值得时候，HBase会自动将表划分为不同的区域，每个区域包含所有行的一个子集。从物理上来说，一张表被拆分成了多个块，每一个块就是一个HRegion，我们用表名+开始/结束主键来区分每个HRegion，一个HRegion会保存一个表里面某段连续的
+		数据，从开始主键到结束主键，一张完整的表格是保存在多个HRegion上面的。
+	b、	HRegion服务器：
+		所有的数据库数据一般是保存在Hadoop分部署文件系统上面的额，用户通过一系列的HRegion服务器获取这些数据，一台机器上面一般只允许一个HRegion服务器，且每一个区段的
+		HRegion也只会被一个HRegion服务器维护。
+		当一个HRegion变得太多巨大，超过了设定的阈值时，HRegion服务器会调用
+		HRegion.closeAndSplit()将此HRegion拆分成两个，并且报告给主服务器让它决定由
+		哪台HRegion服务器来存放信的HRegion。
+	c、	HBase Master服务器：
+		每台HRegion服务器都会和HMaster服务器通信，HMaster的主要任务就是告诉每台HRegion服务器它要维护那些HRegion。
+	d、ROOT表和META表：
+		一个HRegion的表达符最后是：
+		表名+开始主键+唯一ID(tablename+startkey+regionID)
+		我们可以用这个标识符来区分不同的HRegion，这些数据就是元数据，而且元数据本身也是存储在HRegion里面的。所以我们称这个表为元数据表，里面保存的就是HRegion标识符和实际HRegion服务器的映射关系。
+		元数据表也会增长，并且可能被分割成为几个HRegion，为了定位这些HRegion，我们采用了一个根数据表（ROOT table），它保存了所有元数据表的位置，而根数据表是不能被分
+		割的，永远只存在一个HRegion。
+5、 HBase的数据模型：
+	HBase是一个类似Bigtable的分布式数据库，它是一个稀疏的长期存储的、多维度的、排序的映射表。这张表的索引是行关键字、列关键字和时间戳。
+	HBase中的数据都是字符串，没有类型
+	a、HBase把同一个列族里面的数据存储在同一个目录底下，并且HBasse的写操作是锁行的，每一行是一个原子元素，都可以加锁。
+	b、HBase所有数据库的更新都有一个时间戳标记，每个更新都是一个新的版本，HBase会保留一定数量的版本，这个值是可以设定的。客户端可以选择获取距离某个时间点最近的版本单元的值，或者一次获取所有版本单元的值。
+	c、概念视图：
+		可以将一个表想象成一个大的映射关系，通过行键、行键+时间戳或行键+列来定位特定数据。由于HBase是稀疏存储数据的，所以某些列可以空白的。
+	d、物理视图：
+		虽然从概念视图上来看每个表格是由很多行组成的，但是在物理存储上面，它是按照列来保存的，这点在进行数据设计和程序开发的时候必须牢记。	
+		在概念视图上面有些列是空白的，这样的列实际上并不会被存储，当请求这些空白的单元格时，会返回null值。
