@@ -1,0 +1,41 @@
+FAS:
+	Fabric-attached storage
+AFF:
+	All-Flash FAS
+ONTAP:
+	Open Network Techenology of Application Products.
+slots/ports
+Disk shelves
+Internal component
+
+Aggregates:
+	RAID_DP(Dual-Parity)
+
+Type of Volumes:
+	FlexVol:
+
+	FlexClone:
+
+	Traditional:
+
+	Cache:
+
+	Root Volume:
+		sysfiles，logfiles，
+WAFL:
+	Write Anywhere File Layout
+
+LUN:
+	Logical Unit Number
+
+RBAC:
+	Role-Based Access Control
+CLI:
+	date
+	version
+	system console
+	ifconfig
+	ifgrp
+	setup
+	lun create/destroy -s -t  <lun_path>
+
