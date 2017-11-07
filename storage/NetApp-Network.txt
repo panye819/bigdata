@@ -10,29 +10,6 @@ Network:
 			c、Converged Network:
 				Unified Target Adapter(UTA) ports
 				Support for NFS,CIFS,iSCSI and FCoE protocols
-		Data aggragate:
-			Default of RAID_DP witrh five-disk minimun for most disk type
-			Container for SAS,SATA,SSD,or array LUNs.
-	Advanced Disk Partitioning(ADP)
-		shared disks for more efficient resourse use
-		Lower disk consumption requirements
-	Hybrid Aggregates:
-		Flash Pool aggregate
-		SAS or SATA disks for user data
-		SSDs for high-performance caching
-		User case:
-			OLTP
-	RAID_DP(Dual-Parity)
-		rovides two parity disks to protect the data in the event of a double-disk failure.
-		require a minimum of 5 disks.
-	RAID_TEC:
-		provides three parity disks to protect the data in the event of a triple-disk failure.
-		require a minimum of 7 disks.
-	Replicated Database(RDB):
-		Basis of clustering
-		An instance on each node in the cluster
-		In user by several processes
-		The RDB stores data for the management ,volume location,logical interface,SAN,and configuration replication services.
-
-
-	
+	3、Logical Interface(LIF):
+		Represents the IP address or a worldwide port name(WWPN) that is asscociated with a networl port.
+		
