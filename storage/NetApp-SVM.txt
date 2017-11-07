@@ -1,0 +1,41 @@
+SVM:
+ 	1、Data SVM:
+ 		Stored in data SVM:
+ 			a、Data volumes that serve client data
+ 			b、Logical interface(LIFS) that serve client data
+ 		Data SVM volume types:
+ 			a、FlexVol volumes
+ 			b、FlexGroup volumes
+ 			c、Infinite volumes
+
+	2、Benefits:
+			a、Secure multitenancy:
+				Partitioning of a storage system
+				Isolation of data and management
+				No data flow among SVMs in cluster
+			b、Nondisruptive opetations and upgrades:
+				Resource migration
+				Resource avaliability during hardware and software upgrades
+			c、Scalability:
+				Adding and removing SVMs as needed
+				Modifying SVMs for data throughput and storage requirements on demand
+			d、Unifed Storage:
+				SVMs with FlexVol volumes
+					NAS protocols: 
+						CIFS and NFS
+					SAN protocols :
+						iSCSI and FC (FCoE included)
+			e、Delegation of management:
+				User authentication and administrator authentication
+				Access assigned by the cluster administrator
+	3、Data LIFs:
+		a、NAS data LIFs:
+				Multiprotocol(NFS,CIFS or both)
+				Manually or automatically assigned IP address
+				Failover or migration to any node in the cluster
+		b、SAN data LIFs:
+				Single-protocol(FC or iSCSI):
+					FC LIF is assigned a WWPN when created.
+					iSCSI LIF IP addresses can be manually or automatically assigned
+				No failover
+				Restrictions on migration 
