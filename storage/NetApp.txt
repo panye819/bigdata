@@ -9,7 +9,41 @@ Disk shelves
 Internal component
 
 Aggregates:
+	composed RAID groups that contain disks or array LUNs;
+		All RAID must be the same RAID type
+		Aggregates contain the same disk type
+	have a single copy of data called plex:
+		a plex contains all the raid groups that belong to the aggragate
+		mirrored aggregates hava two plex.
+		a pool of hot spare disks is assigned to each plex.	
+	Type:
+		Root aggregate (aggr 0):
+			1、creation is automatic during system initialization
+			2、Container is only for the node's root volume with log files and configuration information.
+			3、ONTAP prevents you from creating other volumes in the root aggragate.
+		Data aggragate:
+			Default of RAID_DP witrh five-disk minimun for most disk type
+			Container for SAS,SATA,SSD,or array LUNs.
+	Advanced Disk Partitioning(ADP)
+		shared disks for more efficient resourse use
+		Lower disk consumption requirements
+	Hybrid Aggregates:
+		Flash Pool aggregate
+		SAS or SATA disks for user data
+		SSDs for high-performance caching
+		User case:
+			OLTP
 	RAID_DP(Dual-Parity)
+		rovides two parity disks to protect the data in the event of a double-disk failure.
+		require a minimum of 5 disks.
+	RAID_TEC:
+		provides three parity disks to protect the data in the event of a triple-disk failure.
+		require a minimum of 7 disks.
+	Replicated Database(RDB):
+		Basis of clustering
+		An instance on each node in the cluster
+		In user by several processes
+		The RDB stores data for the management ,volume location,logical interface,SAN,and configuration replication services.
 
 Type of Volumes:
 	FlexVol:
@@ -22,9 +56,23 @@ Type of Volumes:
 
 	Root Volume:
 		sysfiles，logfiles，
+	Infinite Volume:
+		up to 2 billion files
+		up to 10 PB 
+		data constituents role
+		namespace consitituent track file
+		namespace mirror consitituent is a data protection mirror copy of the namespace consitituent.
 WAFL:
-	Write Anywhere File Layout
-
+	Write Anywhere File Layout 
+	organizes blocks of data on disk into files
+	FlexVol volumes represent the file system
+	Consistency Point:
+		Certain circumstances trigger a CP:
+			1、A ten-second timer runs out
+			2、An NVRAM buffer fills up and it is time to flush the writes to disk
+			3、A snapshot copy is created.	
+	Direct Write Operation
+	Indirect Write Operation
 LUN:
 	Logical Unit Number
 
