@@ -1,5 +1,6 @@
 Network:
- 	1、
+ 	1、Management Networks:
+ 		
 	2、Data Networks:
 			a、Ethernet network:
 				Ethernet ports
@@ -12,4 +13,31 @@ Network:
 				Support for NFS,CIFS,iSCSI and FCoE protocols
 	3、Logical Interface(LIF):
 		Represents the IP address or a worldwide port name(WWPN) that is asscociated with a networl port.
-		
+		LSFs are associated with a particular SVM.
+		Cluster administrators can create ,view,modify,migrate or delete LIFs.
+		SVM administrators can view only the LIFs that are associated with the SVM.
+		Properties:
+			Associated SVM
+			Role:
+				a、Cluster
+					An interface to the cluster interconnect 
+					Scoped to a specific node
+				b、Cluster Management:
+					An single management interface for the entire cluster
+					Cluster-wide(any node)
+				c、Data:
+					An interface for communication with clients or hosts
+					Scoped to a specific SVM(any node)
+				d、Intercluster:
+					An interface for cross-cluster communication,backup,and replication 
+					Scoped to a specific node
+				e、Node Management:
+					An dedicated interface for managing a particular node
+					Scoped to a specific node
+			Protocol
+			Home node and port
+			Address
+			Failover policy and group
+			Firewall policy
+			Load balancing options
+	4、
