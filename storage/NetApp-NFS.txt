@@ -1,0 +1,62 @@
+1、
+
+2、Concepts:
+	NIS：
+		Network Information System
+	DNS:
+		Domain Information System
+	LDAP:
+		Lightweight Directory Access Protocol:
+3、Type of NFS:
+	Basic NFS
+	NFS with NIS
+	NFS with DNS and LDAP
+	NFS with PC-NFS
+	NFS with WebNFS
+4、kerberos:
+	Features of kerberos V5:
+		provides better security than AUTH_SYS does
+		Uses Kerberos credentials to access the file system
+		Does not handle authorization
+	The three Kerberos modes:
+		sec=krb5:
+			Authenticates each NFS request and response
+		sec=krb5i:
+			works the same way as krb5 ,but adds integrity checking to veryify that request and response have not been tampered with
+		sec=krb5p:
+			works the same way sa krb5i ,but adds data encryption to each request and response.
+5、Data ONTAP Hardening Access Mechanisms:
+	wafl.root_only_chown:
+		enforces the restriction that only the root may change the ownership of files.
+	nosuid export option:
+		Allows you to restrict the privilege of changing directory and file ownership to the root user.
+		Disables setuid and setgid executables and mknod commands
+		Is not supported in NFSv4
+6、Performance:
+	Factors affecting NFS Peformance:
+		CPU
+		Memory
+		System bus
+		Network and network interface cards
+		Nonvolatile random access memory(NVRAM)
+		I/O devices(disk controllers and disks)
+	Displaying Qtree Access Statistics:
+		qtree stats
+		qtress stats [-z] [vol_name]
+		the qtree stats counters are reset when:
+			The system is booted
+			The volume containing the qtree is brought online
+			The counters are explicitly reset using the qtree stats -z command.
+	Data ONTAP Tools for Collecting Performance Data:
+		Data ONTAP tools:
+			sysstat
+			netstat
+			ifstat
+			stats
+			statit:
+				statit -b : start data collection 
+			netdiag:
+				analyzes network protocol code statistics
+			
+
+
