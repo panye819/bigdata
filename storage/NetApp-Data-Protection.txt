@@ -1,0 +1,47 @@
+1、ONTAP Integrated Data Protection:
+	SLA:
+		service-level agreement
+		RPO:
+			Recovery point objective
+			the maximun acceptable a mount of data that can be lost if a failure occurs.
+		RTO:
+			Recovery time objective
+			the maximum acceptable amount of time that can pass before data is made avaliable after a failure.
+	NDMP:
+		Network Data Management protocol
+	SnapLock:
+		"write once,read many"(WORM) solution that meets external and internal requirements for retaining,protecting and providing access to regulated and reference data
+	SnapVault:
+		Replication-based disk-to-disk backup
+	SnapMirror:
+		Protect all or some of the volumes in an SVM
+		Asynchronous volume-level data replication for data movement and disaster recovery
+	SyncMirror:
+		Synchronous aggregate-level mirroring for MetroCluster configuration,ONTAP Select and ONTAP Cloud high availability 
+	FlexClone:
+		Instantaneous space-efficient copies of replicated data
+	Load-Sharing Mirror:
+		Namespaces (SVM root volume) protection
+	NetApp Storage Encryption:
+		Full-disk encryption using self-encrypting disks
+	NetApp Volume Encryption:
+		Software-base data at-rest encryption 
+
+2、Concepts:
+	FlexVol volume types:
+		Read/Write(-type rw)
+			Is the default volume type
+			Stores user data
+			Contains files or LUNs
+		Data protection(-type dp)
+			Is at the destination of a mirror or vault relationship
+			Stors a copy of the contents of the source volume
+			Is read-only
+	Data protection:
+		for data protection mirror copies
+	Extended data protection(XDP):
+		for SnapVault relationships
+		for version-flexible SnapMirror relationship
+	Load-sharing(LS):
+		for SVM root-volume protection	
+	
