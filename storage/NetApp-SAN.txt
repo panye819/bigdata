@@ -1,0 +1,60 @@
+1、SAN vs NAS:
+	Storage Area Network
+	Block-level Access
+	A storage system with both NAS and SAN storage is a unified storage system.
+
+2、Concepts:
+	LUN：
+		Logical Unit Number
+		is a logical representation of a physical SCSI disk.
+		Logical Block:512 Bytes
+		Logical blocks are not the same as WAFL 4-kB physical blocks.
+	Protocols:
+		FC
+		iSCSI
+		FCoE
+		SCSI:
+			SCSI provides low-level block access to data
+			Low-level block access is highly efficient and requires less overhead than NAS requires.
+			SCSI can provide a high level of resiliency.
+			The relationship between an initiator and a target is called a nexus.
+	SVM with FlexVol Volumes
+		Each SVM represents a unique SCSI target.
+		Volumes are container for LUNs in a SAN environment.
+			Never create LUNs in the SVM root volume.
+		SAN data logical interface(LIFs):
+			FC LIF addressing is assigned autimatically
+			iSCSI LIF addressing can be assigned manually or automatically
+			Do not fail over
+			Restrictions on migration
+	Unified Target Adapter(UTA):
+		iSCSI,FCoE
+		UTA2 ports:
+			FC or iSCSI and FCoE
+	IMT:
+		Interoperability Matrix Tool
+
+
+3、Zoning:
+	Reduces or eliminates crosstalk between initiator HBAs
+	Reduces the number of available paths between a host and a specific LUN
+	Increases security
+	Improves SAN reliability and reduces the amount of time that is required to resolve problems
+	
+4、Multipath:
+	Multipath I/O uses redundant physical path components to create logical paths between the host and the storage system.
+	Asymmetrical Logical Unit Access(ALUA):
+		identifies a group of target prots that provide a common failover behavior for a LUN.
+		States:
+			Active and Optimized
+			Active and Non-optimized
+			Standby
+			Unavailable
+	Selection Policy
+		A multipath I/O driver uses a selection policy to choose one or more paths
+		For example ,a windows administrator can apply these policies:
+			Failover Only
+			Round Robin,Round Robin with subnet
+			Least Queue Depth
+			Weighted Paths
+			Least Blocks
