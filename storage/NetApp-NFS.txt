@@ -57,6 +57,13 @@
 				statit -b : start data collection 
 			netdiag:
 				analyzes network protocol code statistics
-			
+			nfsstat:
+				displays statistical information about NFS and RPC
+				enable the nfs.per_client_stats.enable option to collect per-client statistics
+			nfs.mountd.trace:
+				debugs denied mount requests
+			pktt:
+				collects network traffic statistics
+				
 
 
