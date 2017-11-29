@@ -1,0 +1,19 @@
+Spark架构原理：
+	
+
+
+
+
+	2、Transformation和Action
+		Spark支持两种RDD操作：
+			Transformation：
+				会针对已有的RDD创建一个新的RDD
+				特点：
+					lazy特性：
+						如果一个spark应用中只定义了transformation操作，那么即使执行了该应用，这些操作也不会执行。也就是说，transformation是不会触发spark程序的执行的，它只是记录了
+						对RDD所做的操作，但是不会自发的执行，只有当transformation之后，接着执行了一个
+						action操作，那么所有的transformation才会执行。
+						spark通过这种lazy特性，来进行底层的spark应用执行的优化，避免产生过多中间结果。
+			Action：
+				会对RDD进行最后的操作，比如遍历、reduce、保存到文件等，并可以返回结果给Driver程序。
+				action操作会触发一个spark Job的运行，从而触发这个action之前所有的transformation的执行，这是action的特性。
