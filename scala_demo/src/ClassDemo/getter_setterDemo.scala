@@ -1,4 +1,4 @@
-package Class
+package ClassDemo
 
 class Student{
   private var myName = "leo"
