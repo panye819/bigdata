@@ -23,6 +23,10 @@ object MapDemo {
     val c = a.zip(b)
     print(c.toBuffer)
 
+    //map键值反转
+    val m3 = Map("a"->1,"b"->2)
+    val m4 = for ((key,value)<- m2) yield (value,key)
+    print(m4+" ")
 
   }
 
