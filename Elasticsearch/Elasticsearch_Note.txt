@@ -1,0 +1,24 @@
+1、核心概念：
+	1）Near Realtime（NRT）：
+		近实时，两个意思：从写入数据到数据可以被搜索有一个小的延迟（大概1秒）；基于es执行搜索和
+		分析的时间可以打到秒级。
+	2）Cluster：
+		集群，包含多个节点，每个节点属于哪个集群是通过配置集群名称来决定的
+	3）Node：
+		节点
+	4）Document：
+		文档，es中的最小数据单元，通常用JSON数据结构表示，每个index下的type中，都可以去存储多个
+		Document。一个Document里面有多个field，每个field就是一个数据字段。
+	5）Index：
+		索引，包含一堆有类似结构的文档数据，一个index包含很多Document，一个index就代表了一类类似
+		的或相同的Document。
+	6）Type：
+		类型，每个索引里面可以有一个或多个type，type是index中的一个逻辑数据分类，一个type下的
+		Document，都有相同的field。
+	7）Shard：
+		单台机器无法存储大量数据，es可以将一个索引中的数据切分成多个shard，分布在多台服务器上存储。
+		有了shard就可以横向扩展，存储更多的数据，让搜索和查询操作分布到多台服务器上去执行，提升吞
+		吐量和性能，每个shard就是一个Lucene index。
+	8）Replica：
+		为每个shard创建多个replica副本，可以在shard故障时提供备用服务，保障数据不丢失，多个replica还可以提高吞吐量和性能。primary shard（建立索引时一次设置，不能更改，默认5个），replica
+		shard（随时修改数量，默认1个），默认每个索引10个shard，5个primary shard，5个replica shard，最小的高可用配置是两台服务器。
