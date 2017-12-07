@@ -1,5 +1,6 @@
 package cn.itcast.spark.day5
 
+import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}
 
@@ -27,7 +28,7 @@ object StatefulWordCount {
     //updateStateByKey必须设置setCheckPoint
     sc.setCheckpointDir("/Users/castlepan/Study-Code/checkpoint")
     val ssc = new StreamingContext(sc,Seconds(15))
-
+    KafkaUtils
 
     val ds = ssc.socketTextStream("127.0.0.1",9999)
     val result = ds.flatMap(_.split(" ")).map((_,1)).updateStateByKey(updateFunc,new

@@ -10,8 +10,8 @@ object StreamingWordCount {
     LoggerLevels.setStreamingLogLevels()
     //设置配置
     val conf = new SparkConf().setAppName("StreamingWordCount").setMaster("local[2]")
-    val sc = new SparkContext(conf)
-    val ssc = new StreamingContext(sc,Seconds(15))
+    //val sc = new SparkContext(conf)
+    val ssc = new StreamingContext(conf,Seconds(15))
 
     //接收数据
     val ds = ssc.socketTextStream("127.0.0.1",8888)
